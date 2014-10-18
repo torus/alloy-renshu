@@ -1,20 +1,16 @@
 open util/ordering[Time]
 
 sig Time {}
-abstract sig Position {}
+abstract sig Position {pos: set Actor -> Time}
 one sig Left, Right extends Position {}
 
 abstract sig Actor {}
 
 one sig Goat, Wolf, Cabbege, Man extends Actor {}
 
-one sig State {
-	pos: Position -> set Actor -> Time
-}
-
 pred init (t: Time) {
-	State.pos[Left].t = Actor
-	no State.pos[Right].t
+	pos[Left].t = Actor
+	no pos[Right].t
 }
 
 fact Traces {
@@ -26,33 +22,33 @@ fact Traces {
 
 pred deliver (t: Time, obj: Actor - Man, p: Position) {
 	let t' = t.next, p' = Position - p |
-		(Man + obj) in State.pos[p].t
-		and State.pos[p].t' = State.pos[p].t - (Man + obj)
-		and State.pos[p'].t' = State.pos[p'].t + Man + obj
+		(Man + obj) in pos[p].t
+		and pos[p].t' = pos[p].t - (Man + obj)
+		and pos[p'].t' = pos[p'].t + Man + obj
 }
 
 pred justMove (t: Time, p: Position) {
 	let t' = t.next, p' = Position - p |
-		Man in State.pos[p].t
-		and State.pos[p].t' = State.pos[p].t - Man
-		and State.pos[p'].t' = State.pos[p'].t + Man
+		Man in pos[p].t
+		and pos[p].t' = pos[p].t - Man
+		and pos[p'].t' = pos[p'].t + Man
 }
 
 pred doNotEat {
 	no t: Time |
-		(State.pos.t.Wolf = State.pos.t.Goat
-		and State.pos.t.Goat != State.pos.t.Man)
-		or (State.pos.t.Cabbege = State.pos.t.Goat
-		and State.pos.t.Goat != State.pos.t.Man)
+		(pos.t.Wolf = pos.t.Goat
+		and pos.t.Goat != pos.t.Man)
+		or (pos.t.Cabbege = pos.t.Goat
+		and pos.t.Goat != pos.t.Man)
 }
 
 pred finish (t: Time) {
-	State.pos[Right].t = Actor
-	no State.pos[Left].t
+	pos[Right].t = Actor
+	no pos[Left].t
 }
 
 pred doNotRepeat {
-	no disj t, t': Time | State.pos.t = State.pos.t'
+	no disj t, t': Time | pos.t = pos.t'
 }
 
 pred alldone {
